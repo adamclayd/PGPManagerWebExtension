@@ -1,0 +1,60 @@
+<form name="form" ng-submit="submit(form, $event)">
+  <div class="modal-header">
+    <button class="btn-close" type="button" ng-click="dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-md-8 offset-md-2">
+        <div class="row">
+          <label class="col-md-3 col-form-label">Your Name</label>
+          <div class="col-md-9">
+            <input type="text" class="form-control" ng-model="model.name" name="name" required ng-disabled="disabled" />
+            <bs5-alert type="danger" ng-if="(form.$submitted || form.name.$touched) && form.name.$error.required">Required field</bs5-alert>
+          </div>
+        </div>
+        <div class="row">
+          <label class="col-md-3 col-form-label">Your Email</label>
+          <div class="col-md-9">
+            <input type="text" class="form-control" ng-model="model.email" name="email" required email ng-disabled="disabled" />
+            <bs5-alert type="danger" ng-if="(form.$submitted || form.email.$touched) && form.email.$error.required">Required field</bs5-alert>
+            <bs5-alert type="danger" ng-if="(form.$submitted || form.email.$touched) && form.email.$error.email">Field must be a valid email address</bs5-alert>
+          </div>
+        </div>
+        <div class="row">
+          <div class="offset-md-3 col-md-9">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" ng-model="model.usePassphrase" name="usePassphrase" ng-disabled="disabled" />
+              <label class="form-check-label">Use Passphrase</label>
+            </div>
+          </div>
+        </div>
+        <div class="row" ng-if="model.usePassphrase">
+          <label class="col-md-3 col-form-label">Passphrase</label>
+          <div class="col-md-9">
+            <input type="password" class="form-control" ng-model="model.passphrase" name="passphrase" required ng-disabled="disabled" />
+            <bs5-alert type="danger" ng-if="(form.$submitted || form.passphrase.$touched) && form.passphrase.$error.required">Required field</bs5-alert>
+          </div>
+        </div>
+        <div class="row" ng-if="model.usePassphrase">
+          <label class="col-md-3 col-form-label">Confirm Passphrase</label>
+          <div class="col-md-9">
+            <input type="password" class="form-control" ng-model="model.confirmPassphrase" name="passphrase" required compare-to="model.passphrase" ng-disabled="disabled" />
+            <bs5-alert type="danger" ng-if="(form.$submitted || form.confirmPassphrase.$touched) && form.confirmPassphrase.$error.required">Required field</bs5-alert>
+            <bs5-alert type="danger" ng-if="(form.$submitted || form.confirmPassphrase.$touched) && form.confirmPassphrase.$error.compareTo">Fields do not match</bs5-alert>
+          </div>
+        </div>
+        <div class="row mt-2" ng-if="error">
+          <div class="col-12">
+            <bs5-alert type="danger">
+              {{error}}
+            </bs5-alert>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-success" type="submit" ng-disabled="form.$invalid || disabled">Generate</button>
+    <button class="btn btn-danger" type="button" ng-click="dismiss()" ng-disabled="disabled">Cancel</button>
+  </div>
+</form>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="options">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../lib/css/bootstrap.css" />
+    <link rel="stylesheet" href="../lib/css/bootstrap-icons/bootstrap-icons.css" />
+    <link rel="stylesheet" href="options.css" />
+    <title>PGP Manager Options</title>
+</head>
+<body>
+    <bs5-tabset vertical>
+        <bs5-tab heading="PGP Key Pair">
+            <div ng-controller="PgpKeysController">
+                <form name="form" ng-submit="submit(form, $event)">
+                    <div class="row mt-2" ng-if="!keys.privateKey || !keys.publicKey">
+                        <div class="col-8">
+                            <h6 class="ms-3">Already Have Your PGP Keys?</h6>
+                            <p class="mb-3 ms-3">
+                                If you already have a public and private key to use you can either copy and paste your pgp keys in the text boxes then click&nbsp;
+                                the "Save" button or you can import them from a file by clicking on the <i class="bi bi-plus"></i> icon under each of the text boxes then click&nbsp;
+                                the "Save" button.
+                            </p>
+                            <h6 class="ms-3">Generate PGP Public and Private Keys</h6>
+                            <p class="ms-3">
+                                If you don't have a public and private you can generate one. Just click "Generate" button and&nbsp;
+                                fill out the form.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row mt-2" ng-if="keys.privateKey && keys.publicKey">
+                        <div class="col-8">
+                            <h6 class="ms-3">Want to Use Another Private and Public Key?</h6>
+                            <p class="ms-3">
+                                You have to delete the current private and public keys in order to use another one.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-5">
+                            <div class="card ms-3" ng-class="{'pgp-key': !keys.privateKey || !keys.publicKey, 'pgp-key-text': !!keys.privateKey && !!keys.publicKey}">
+                                <h5 class="card-header">Private Key</h5>
+                                <div class="card-body">
+                                    <textarea name="privateKey" class="form-control" ng-if="!keys.privateKey || !keys.publicKey" ng-model="model.privateKey" required pgp-private-key></textarea>
+                                    <div ng-if="!keys.privateKey || !keys.publicKey" class="text-end">
+                                        <button type="button" class="btn btn-outline-success me-1 mt-1" ng-click="importPrivateKey($event)"><i class="bi bi-plus-lg"></i></button>
+                                    </div>
+                                    <div ng-if="keys.privateKey && keys.publicKey" class="text-nowrap" ng-bind-html="keys.privateKey.replaceAll('\n', '<br>')"></div>
+                                </div>
+                            </div>
+                            <div ng-if="(form.$submitted || form.privateKey.$touched)">
+                                <bs5-alert type="danger" ng-if="form.privateKey.$error.required">Private Key is required</bs5-alert>
+                                <bs5-alert type="danger" ng-if="form.privateKey.$error.pgpPrivateKey">Private Key is not a valid armored pgp private key</bs5-alert>
+                            </div>
+                        </div>
+                        <div class="col-5 offset-2">
+                            <div class="card me-3" ng-class="{'pgp-key': !keys.privateKey || !keys.publicKey, 'pgp-key-text': !!keys.privateKey && !!keys.publicKey}">
+                                <h5 class="card-header">Public Key</h5>
+                                <div class="card-body">
+                                    <textarea name="publicKey" class="form-control" ng-if="!keys.privateKey || !keys.publicKey" ng-model="model.publicKey" required pgp-public-key></textarea>
+                                    <div ng-if="!keys.privateKey || !keys.publicKey" class="text-end">
+                                        <button type="button" class="btn btn-outline-success me-1 mt-1" ng-click="importPublicKey($event)"><i class="bi bi-plus-lg"></i></button>
+                                    </div>
+                                    <div ng-if="keys.privateKey && keys.publicKey" class="text-nowrap" ng-bind-html="keys.publicKey.replaceAll('\n', '<br>')"></div>
+                                </div>
+                            </div>
+                            <div ng-if="form.$submitted || form.publicKey.$touched">
+                                <bs5-alert type="danger" ng-if="form.publicKey.$error.required">Pubic Key is required</bs5-alert>
+                                <bs5-alert type="danger" ng-if="form.publicKey.$error.pgpPublicKey">Public Key is not a valid armored pgp public key</bs5-alert>
+                            </div>
+                        </div>
+                        <div class="row mt-2" ng-if="!keys.privateKey || !keys.publicKey">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-info ms-3" ng-click="generateKeys()">Generate</button>
+                            </div>
+                            <div class="col-6 text-end">
+                                <button type="submit" ng-disabled="form.$invalid" class="btn btn-danger me-3">Use Keys</button>
+                            </div>
+                        </div>
+                        <div class="row mt-2" ng-if="keys.publicKey && keys.privateKey">
+                            <div class="col-12 text-end">
+                                <button type="button" class="btn btn-danger me-3" ng-click="deleteKeys()">Delete Keys</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </bs5-tab>
+        <bs5-tab heading="Imported Recipient Keys">
+            <div class="row" ng-controller="RecipientsController">
+                <div class="col-4">
+                    <div class="card vh-100 ms-3">
+                        <h5 class="card-header text-nowrap">Imported Recipient Keys</h5>
+                        <div class="card-body overflow-scroll" id="recipients">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="input-group mb-1">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input type="text" class="form-control" ng-model="term" ng-change="search(term)" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" ng-repeat="recipient in page.items">
+                                <div class="col-12">
+                                    <div class="card clickable" ng-class="{active: recipient.id === oldId}" ng-click="load(recipient)">
+                                        <div class="card-body px-0 py-0">
+                                            <div class="row">
+                                                <div class="offset-2 col-8 text-center">
+                                                    <i class="bi bi-person"></i> {{recipient.id}}
+                                                    <div>
+                                                        <a href="#" class="sync-link" ng-click="!synced.find(findSynced(recipient.id)) ? sync(recipient, $event) : desync(recipient.id, $event)">
+                                                            {{!synced.find(findSynced(recipient.id)) ? 'Sync with Google' : 'Remove from Google Sync'}}
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <div class="col-2 text-end">
+                                                    <button type="button" class="btn-close me-2" title="remove" ng-click="remove(recipient.id)"></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <bs5-pagination
+                                    align="center"
+                                    current-page="page.page"
+                                    page-size="page.pageSize"
+                                    number-items="page.total"
+                                    page-change="page.changePage($page)"
+                                    next-page-text=">" previous-page-text="<"
+                                    with-first-last="false"
+                                    size="sm"
+                                    ng-if="(page.total / page.pageSize) > 1">
+                            </bs5-pagination>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-8">
+                    <div class="row">
+                        <div class="offset-1 col-10">
+                            <div class="card">
+                                <h5 class="card-header text-nowrap">{{!oldId ? 'Add' : 'Update' }} Recipient Key</h5>
+                                <div class="card-body">
+                                    <form name="form" ng-submit="!oldId ? add(form, $event) : update(form, $event)" id="add-update-form">
+                                        <div class="col-8 offset-1">
+                                            <div class="row">
+                                                <label class="col-12 col-form-label">Key Name</label>
+                                                <div class="col-12">
+                                                    <input name="id" ng-model="model.id" class="form-control" required />
+                                                    <p style="font-size: 6pt">Give the key a name so it can be referenced later</p>
+                                                    <bs5-alert type="danger" ng-if="((form.id.$touched || form.id.$dirty) && form.id.$error.required)">Field is Required</bs5-alert>
+                                                </div>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <label class="col-12 col-form-label">Public Key</label>
+                                                <div class="col-12">
+                                                    <textarea class="form-control" name="publicKey" ng-model="model.publicKey" required pgp-public-key></textarea>
+                                                    <div class="text-end mt-1"><button type="button" class="btn btn-outline-success px-0 py-0" ng-click="importKey()"><i class="bi bi-plus-lg"></i></button></div>
+                                                    <bs5-alert class="mt-1" type="danger" ng-if="(form.publicKey.$touched || form.publicKey.$dirty) && form.publicKey.$error.required">Field is required</bs5-alert>
+                                                    <bs5-alert class="mt-1" type="danger" ng-if="(form.publicKey.$touched || form.publicKey.$dirty) && form.publicKey.$error.pgpPublicKey">Field has to be an armored pgp public key</bs5-alert>
+                                                </div>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <div class="col-12 text-end">
+                                                    <button type="submit" class="btn btn-success" ng-disabled="form.$invalid">{{!oldId ? 'Add' : 'Update'}}</button>
+                                                    <button type="button" class="btn btn-danger" ng-click="clear(form)">{{!oldId ? 'Clear' : 'Cancel'}}</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </bs5-tab>
+    </bs5-tabset>
+    <script src="../lib/js/openpgp.js"></script>
+    <script src="../lib/js/bootstrap.bundle.js"></script>
+    <script src="../lib/js/openpgp.js"></script>
+    <script src="../lib/js/angular.js"></script>
+    <script src="../lib/js/angular-animate.js"></script>
+    <script src="../lib/js/angular-sanitize.js"></script>
+    <script src="../lib/js/angular-route.js"></script>
+    <script src="../lib/js/angular-bootstrap-5.js"></script>
+    <script src="../lib/js/angular-services.js"></script>
+    <script src="options.js"></script>
+</body>
+</html>

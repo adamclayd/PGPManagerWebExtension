@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="popup">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../lib/css/bootstrap.css" />
+    <link rel="stylesheet" href="../lib/css/bootstrap-icons/bootstrap-icons.css" />
+    <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+    <div id="wrapper" ng-controller="MainController">
+        <div id="popup-header">
+            <div class="row">
+                <div class="col-10">
+                    <img src="../icons/pgp-32.png" />
+                    <span class="ms-1 fs-4 fw-bold">PGP Manager</span>
+                </div>
+                <div class="col-2 text-end">
+                    <a href="#" ng-click="pages.openOptions($event)">
+                        <i class="bi bi-gear-fill"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div id="no-pgp-keys" ng-if="pages.isPageShown('noPgpKeys')" class="popup-page">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card white">
+                        <div class="card-body">
+                            <p class="fs-6">
+                                You need to go to the&nbsp;
+                                <a href="#" ng-click="pages.openOptions($event)">Options</a>&nbsp;
+                                page to configure or generate a public and private key pair
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="encrypt-decrypt" class="popup-page" ng-show="pages.isPageShown('encryptDecrypt')">
+            <bs5-tabset>
+                <bs5-tab heading="Encrypt">
+                    <div ng-controller="EncryptController">
+                        <div class="encrypt-decrypt" ng-show="display === 'encrypt'">
+                            <form name="form">
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <div class="card">
+                                            <div class="fw-bolder card-header">Plain Text</div>
+                                            <div class="card-body px-1 py-1">
+                                                <textarea
+                                                        class="form-control"
+                                                        ng-model="encryptPage.model.text"
+                                                        name="text"
+                                                        ng-class="{
+                                                            'border': (form.text.$touched || form.text.$dirty) && form.$invalid,
+                                                            'border-danger': (form.text.$touched || form.text.$dirty) && form.$invalid
+                                                        }"
+                                                        required>
+                                                </textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-1">
+                                    <div class="col-12">
+                                        <div class="card msg-txt">
+                                            <div class="card-header fw-bolder">Encrypted Message</div>
+                                            <div class="card-body text-nowrap" ng-bind-html="encryptPage.encrypted.replaceAll('\n', '<br>')"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-6">
+                                        <button
+                                                class="btn btn-dark me-3"
+                                                ng-disabled="form.$invalid"
+                                                ng-click="encryptPage.selectRecipient(form)"
+                                                title="Encrypt with a recipients public key">
+                                            <img src="../icons/icons8-user-key-24.png" />
+                                        </button>
+                                        <button
+                                                class="btn btn-dark"
+                                                ng-disabled="form.$invalid"
+                                                ng-click="encryptPage.encrypt(form)"
+                                                title="Encrypt with your public key">
+                                            <img src="../icons/icons8-add-key-24.png" />
+                                        </button>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <button
+                                                class="btn btn-danger"
+                                                type="button"
+                                                ng-click="encryptPage.clear(form)">
+                                            Clear
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="recipients" ng-show="display === 'recipients'">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header fw-bolder">Recipient Keys</div>
+                                        <div class="card-body px-1 py-1">
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="input-group mb-1">
+                                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                                        <input type="text" class="form-control" ng-model="recipientsPage.term" ng-change="recipientsPage.search(recipientsPage.term)" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row" ng-repeat="recipient in recipientsPage.page.items">
+                                                <div class="col-12">
+                                                    <div class="card clickable" ng-click="recipientsPage.deferred.resolve(recipient)">
+                                                        <div class="card-body py-2 text-center">
+                                                            <i class="bi bi-person-fill"></i>
+                                                            {{recipient.id}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-12 text-center">
+                                                    <p>
+                                                        <a href="#" ng-click="pages.openOptions($event)">Options Page</a> - Add more recipient keys
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <bs5-pagination
+                                                    align="center"
+                                                    current-page="recipientsPage.page.page"
+                                                    page-size="recipientsPage.page.pageSize"
+                                                    number-items="recipientsPage.page.total"
+                                                    page-change="recipientsPage.page.changePage($page)"
+                                                    next-page-text=">" previous-page-text="<"
+                                                    with-first-last="false"
+                                                    size="sm"
+                                                    ng-if="(recipientsPage.page.total / recipientsPage.page.pageSize) > 1">
+                                            </bs5-pagination>
+                                            <div class="text-center">
+                                                <button class="btn btn-danger" type="button" ng-click="recipientsPage.deferred.resolve(false)">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </bs5-tab>
+                <bs5-tab heading="Decrypt">
+                    <div ng-controller="DecryptController">
+                        <div id="decrypt" class="encrypt-decrypt" ng-show="display === 'decrypt'">
+                            <form name="frm" ng-submit="decrypt.decrypt(frm, $event)">
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <div class="card">
+                                            <div class="fw-bolder card-header">Encrypted Message</div>
+                                            <div class="card-body px-1 py-1">
+                                                <textarea
+                                                        class="form-control"
+                                                        ng-model="decrypt.model.msg"
+                                                        name="msg"
+                                                        ng-class="{
+                                                            'border': (frm.msg.$touched || frm.msg.$dirty) && frm.$invalid,
+                                                            'border-danger': (frm.msg.$touched || frm.msg.$dirty) && frm.$invalid
+                                                        }"
+                                                        pgp-message
+                                                        required>
+                                                </textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-1">
+                                    <div class="col-12">
+                                        <div class="card msg-txt">
+                                            <div class="card-header fw-bolder">Plain Text</div>
+                                            <div class="card-body text-nowrap" ng-bind-html="decrypt.decrypted.replaceAll('\n', '<br>')"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-6">
+                                        <button
+                                                class="btn btn-dark"
+                                                ng-disabled="frm.$invalid"
+                                                type="submit"
+                                                title="Decrypt Message">
+                                            <img src="../icons/icons8-decrypt-24.png" />
+                                        </button>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <button
+                                                class="btn btn-danger"
+                                                type="button"
+                                                ng-click="decrypt.clear(frm)">
+                                            Clear
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div ng-show="display === 'passphrase'">
+                            <form name="fr" id="passphraseFrm" ng-submit="passphrase.deferred.resolve(fr)">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Enter Passphrase</h5>
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <input
+                                                                type="password"
+                                                                name="passphrase"
+                                                                class="form-control"
+                                                                ng-model="passphrase.model.passphrase"
+                                                                ng-class="{
+                                                                    'border': (fr.passphrase.$touched || fr.passphrase.$dirty) && fr.$invalid,
+                                                                    'border-danger': (fr.passphrase.$touched || fr.passphrase.$dirty) && fr.$invalid
+                                                                }"
+                                                                required
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="offset-10 col-2">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="remember" ng-model="passphrase.model.remember" />
+                                                        <label class="form-check-label">Remember</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <button type="submit" class="btn btn-success" ng-disabled="fr.$invalid">Done</button>
+                                                <button type="button" class="btn btn-danger" ng-click="passphrase.deferred.reject()">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </bs5-tab>
+            </bs5-tabset>
+        </div>
+        <div class=".popup-page" id="error" ng-if="pages.isPageShown('error')" ng-controller="ErrorController">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card white">
+                        <div class="card-body">
+                            <p class="fs-6">{{pages.getError()}}</p>
+                            <div class="text-end">
+                                <button class="btn btn-outline-dark" type="button" ng-click="pages.showPage('encryptDecrypt')">Ok</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../lib/js/objects.js"></script>
+    <script src="../lib/js/openpgp.js"></script>
+    <script src="../lib/js/bootstrap.bundle.js"></script>
+    <script src="../lib/js/angular.js"></script>
+    <script src="../lib/js/angular-animate.js"></script>
+    <script src="../lib/js/angular-sanitize.js"></script>
+    <script src="../lib/js/angular-bootstrap-5.js"></script>
+    <script src="../lib/js/angular-services.js"></script>
+    <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{
+  "name": "PGP Manager",
+  "version": "0.0.1",
+  "manifest_version": 3,
+  "permissions": [
+    "webNavigation",
+    "storage",
+    "tabs"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "lib/js/*.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "icons": {
+    "32": "icons/pgp-32.png",
+    "64": "icons/pgp-64.png",
+    "96": "icons/pgp-96.png",
+    "128": "icons/pgp-128.png"
+  },
+  "action": {
+    "default_icon": {
+      "32": "icons/pgp-32.png",
+      "64": "icons/pgp-64.png",
+      "96": "icons/pgp-96.png",
+      "128": "icons/pgp-128.png"
+    },
+    "default_popup": "popup/popup.html"
+  },
+  "options_page": "options/options.html",
+  "background": {
+    "service_worker": "background/background.js"
+  }
+}

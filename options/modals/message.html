@@ -1,0 +1,26 @@
+<div class="modal-header">
+	<h5 class="modal-title">
+		<i class="bi" ng-class="{'bi-exclimation': !isError, 'bi-x-circle': isError}"></i>
+		{{isError ? 'Error' : 'Success'}}
+	</h5>
+	<button class="btn-close" type="button" ng-click="close()""></button>
+</div>
+<div class="modal-body">
+	<div class="row" ng-if="msgs.isArray">
+		<div class="col-12">
+			<bs5-alert type="{{isError ? 'danger' : 'success'}}" ng-repeat="msg in msgs.messages">
+				<i class="bi bi-x-circle"></i> {{msg}}
+			</bs5-alert>
+		</div>
+	</div>
+	<div class="row" ng-if="!msgs.isArray">
+		<div class="col-12">
+			<bs5-alert type="{{isError ? 'danger' : 'success'}}">
+				<i class="bi bi-x-circle"></i> {{msgs.messages}}
+			</bs5-alert>
+		</div>
+	</div>
+</div>
+<div class="modal-footer">
+	<button class="btn btn-danger" type="button" ng-click="close()">Ok</button>
+</div>

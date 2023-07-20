@@ -1,0 +1,70 @@
+/*#recipients {
+    height: 85.6vh;
+}*/
+
+#recipients::-webkit-scrollbar {
+    display: none;
+}
+
+#add-update-form textarea {
+    height: 100px;
+}
+
+.card.pgp-key-text .card-body {
+    overflow: scroll !important;
+    height: 350px;
+}
+
+.card.pgp-key-text .card-body::-webkit-scrollbar {
+    display: none;
+}
+
+.card.pgp-key .form-control {
+    height: 300px;
+}
+
+.card.pgp-key-text {
+    background-color: #eeeeee
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+#recipients .card.clickable:not(.active):hover {
+    background-color: #ddf2ff;
+}
+
+#recipients .card.active {
+    background-color: #0c63e4;
+    color: white;
+}
+
+.overflow-y-hidden {
+    overflow-y: hidden !important;
+}
+
+.overflow-y-scroll {
+    overflow-y: scroll !important;
+}
+
+.overflow-x-hidden {
+    overflow-x: hidden !important;
+}
+
+.overflow-x-scroll {
+    overflow-x: scroll !important;
+}
+
+.card.clickable .card-body .sync-link {
+    font-size: 6pt;
+}
+
+.card.clickable.active .card-body .sync-link {
+    color: #fafcde;
+}
+
+.bs5-tabset-vertical .bs5-tabs {
+    height: 100vh;
+    border-right: 1px solid #adb5bd;
+}

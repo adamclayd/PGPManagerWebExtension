@@ -1,0 +1,81 @@
+body {
+    background-color: #ececec;
+}
+
+#wrapper {
+    max-height: 700px;
+    width: 400px;
+    margin: 10px 10px 10px 10px;
+}
+
+#encrypt-decrypt .nav-tabs {
+    border-bottom: 1px solid #0d6efd;
+}
+
+.encrypt-decrypt textarea {
+    height: 150px;
+}
+
+.encrypt-decrypt .card.msg-txt .card-body {
+    overflow: scroll !important;
+    height: 160px;
+}
+
+.encrypt-decrypt .card.msg-txt .card-body::-webkit-scrollbar {
+    display: none;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.card.clickable:hover {
+    background-color: lightblue;
+}
+
+#popup-header {
+    margin: 0px 10px 10px 10px;
+}
+
+#popup-header a {
+    font-size: large;
+    line-height: 35px;
+}
+
+#popup-header img {
+    vertical-align: top;
+}
+
+#no-pgp-keys p {
+    margin: 200px 0px 200px 0px;
+}
+
+.overflow-y-hidden {
+    overflow-y: hidden !important;
+}
+
+.overflow-y-scroll {
+    overflow-y: scroll !important;
+}
+
+.overflow-x-hidden {
+    overflow-x: hidden !important;
+}
+
+.overflow-x-scroll {
+    overflow-x: scroll !important;
+}
+
+.card.white {
+    background-color: white;
+}
+
+#error p {
+    margin-top: 200px;
+    margin-bottom: 150px;
+}
+
+#passphraseFrm .card .card-body {
+    padding-top: 50px;
+    padding-bottom: 150px;
+}
